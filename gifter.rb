@@ -1,54 +1,63 @@
-class Gifter
-    def initialize(names)
-        @names = names
+require 'yaml'
+
+class Array
+    def random
+        self[rand(self.size)]
+    end
+end
+
+class FamilyGifter
+    def initialize(families)
+        @families = families
     end
 
-    def unused_names(all_names, used_names)
-        all_names - used_names
-    end
-
-    def random_name(names)
-        names[rand(names.size)]
-    end
-
-    def random_name_excluding(names, exclude)
-        if names.size == 1 and names[0] == exclude
-            raise "Cannot assign #{exclude} to self"
+    def give
+        tries = 0
+        loop do
+            tries += 1
+            if tries > 100
+                raise "Tried 100 times, and couldn't find a match"
+            end
+            begin
+                gifts = try_to_give
+                verify_gifts(gifts)
+                return gifts
+            rescue => err
+            end
         end
-        name = self.random_name(names)
-        while name == exclude
-            name = self.random_name(names)
-        end
-        name
     end
 
     def try_to_give
         gifts = {}
-        @names.each do |name|
-            gifts[name] = self.random_name_excluding(self.unused_names(@names, gifts.values), name)
+        @families.each do |family,names|
+            other_names = @families.values.flatten - names
+            names.each do |name|
+                gifts[name] = (other_names - gifts.values).random
+            end
         end
         gifts
     end
 
-    def give
-        if @names.size == 1
-            raise "You can't exchange gifts if you're all by yourself, you poor lonely fool!"
+    def verify_gifts(gifts)
+        ungifted = (@families.values.flatten - gifts.values)
+        if not ungifted.empty?
+            raise "Unmatched gifts"
         end
-        loop do
-            begin
-                return try_to_give
-            rescue
+    end
+
+    def display(gifts)
+        @families.each do |family,names|
+            puts "Family: #{family}"
+            names.each do |name|
+                puts "-- #{name}: #{gifts[name]}"
             end
         end
     end
 end
 
-names = File.read("names").split("\n")
+families = YAML::load(File.read("gifter.yaml"))
 
-gifter = Gifter.new(names)
+gifter = FamilyGifter.new(families)
 gifts = gifter.give
-
-gifts.keys.each do |giver|
-    puts "#{giver}: #{gifts[giver]}"
-end
+gifter.display(gifts)
 

@@ -1,0 +1,19 @@
+Gifter randomly assigns gift givers and receivers, for the times when you want to give gifts without having to figure out who's giving to whom on your own.
+
+The gimmick here is that there are multiple families, and intra-family gifts are not allowed. Say you're going to a Christmas party, with your family and another family. You all want to exchange gifts, but you don't want to give a gift to someone in your own family. Gifter is for you.
+
+    mv gifter.yaml.template gifter.yaml
+    ruby gifter.rb
+
+The gifter.yaml file represents a hash of families, where the keys are family names and the values are arrays of the names of the family members. For example:
+
+    First Family:
+        - "Name 1"
+        - "Name 2"
+        - "Name 3"
+    Second Family:
+        - "Name 4"
+        - "Name 5"
+        - "Name 6"
+
+Adjust that file accordingly.
